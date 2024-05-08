@@ -80,6 +80,8 @@ def create_app(config_filename: str = 'config.dev.json') -> Flask:
             app.logger.critical("É necessário fazer a migração/upgrade do banco")
             sys.exit(1)
 
+
+
         if User.is_empty():
             usuarios = [
                 dict(nome="Administrador",
