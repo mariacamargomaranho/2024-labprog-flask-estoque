@@ -1,0 +1,15 @@
+{% extends '_layout.jinja2' %}
+
+{% block  content %}
+   <table class="table table-striped table-hover">
+   <thead>
+   <tr>
+       <th scope="col">Nome da categoria</th>
+       <th scope="col">Operações</th>
+   <tr></thead>
+   {% for categoria in rset %}
+   <td>{{ categoria.nome }}</td>
+       <td>Excluir, editar</td></tr>
+   {%  endfor %}
+   </table>
+{%  endblock %}
