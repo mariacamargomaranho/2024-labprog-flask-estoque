@@ -16,5 +16,5 @@ class Produto(db.Model, BasicRepositoryMixin,TimeStampMixin):
     foto_mine = mapped_column(String(64),nullable=True, index=None )
     categoria_id = mapped_column(Uuid(as_uuid=True), ForeignKey('categorias.id'))
 
-    categoria = relationship('Categoria', back_populates='produtos')
+    categoria = relationship('Categoria', back_populates='lista_de_produtos')
 
