@@ -1,6 +1,6 @@
 from base64 import b64encode
 
-from flask import Blueprint, flash, url_for, redirect, render_template, request
+from flask import Blueprint, flash, url_for, redirect, render_template, request, abort, Response
 from flask_login import login_required
 
 from src.forms.produto import ProdutoForm
@@ -9,10 +9,11 @@ from src.models.produto import Produto
 from src.modules import db
 
 bp = Blueprint('produto', __name__, url_prefix='/produto')
-
 @bp.route('/add', methods=['GET', 'POST'])
 @login_required
 def add():
+
+
 
     if Categoria.is_empty():
         flash("Impossível adicionar produto. Adicione pelo menos uma categoria",
@@ -24,10 +25,8 @@ def add():
     categorias = db.session.execute(db.select(Categoria).order_by(Categoria.nome)).scalars()
     form.categoria.choices = [(str(i.id), i.nome) for i in categorias]
     if form.validate_on_submit():
-        produto = Produto(nome = form.nome.data,
-                           preco = form.preco.data,
-                           ativo = form.ativo.data,
-                           estoque = form.estoque.data)
+        produto = Produto(nome = form.nome.data, preco = form.preco.data,
+                           ativo = form.ativo.data, estoque = form.estoque.data)
         if form.foto.data:
             produto.possui_foto = True
             produto.foto_base64 = (b64encode(request.files[form.foto.name].read()).
@@ -48,3 +47,20 @@ def add():
         return redirect(url_for('index'))
     return  render_template('produto/add_edit.jinja2', form=form,
                             title = "Adicionar novo produto" )
+
+@bp.route('/imagem/<uuid:produto_id>', methods=['GET',])
+def imagem(id_produto):
+    produto = Produto.get_by_id(id_produto)
+    if produto is None:
+        return abort(404)
+    conteudo , tipo = produto.imagem
+    return Response(conteudo, mimetype=tipo)
+
+@bp.route('/thmbmail/<uuid:produto_id>/<int:size>', methods=['GET',])
+@bp.route('/thmbmail/<uuid:produto_id>', methods=['GET',])
+def thmbmail(id_produto, size=128):
+    produto = Produto.get_by_id(id_produto)
+    if produto is None:
+        return abort(404)
+    conteudo , tipo = produto.thumbnail(size)
+    return Response(conteudo, mimetype=tipo)
